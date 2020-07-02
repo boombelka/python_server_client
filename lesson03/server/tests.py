@@ -1,5 +1,5 @@
 import unittest
-from lesson_03.server.server import User
+from lesson03.server.server import User
 
 
 def test_authorization_user():

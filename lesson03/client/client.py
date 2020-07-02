@@ -4,10 +4,10 @@
 from lesson03.client.cliconf import ADDR, BUFSIZE
 from socket import AF_INET, SOCK_STREAM, socket
 import json
-from lesson03.client.users.user_client import User
+from lesson03.client.user_client import User
 import datetime
 import logging
-import lesson_03.client.client_log_config
+import lesson03.client.client_log_config
 # не разобрался - убираешь - не работает
 
 

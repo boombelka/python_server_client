@@ -1,11 +1,11 @@
 from socket import AF_INET, SOCK_STREAM, socket
-from lesson_03.server.util_server_tools import server_answer
-from lesson_03.server.servconf import ADDR, BUFSIZE, SERV_LISTEN
+from lesson03.server.util_server_tools import server_answer
+from lesson03.server.servconf import ADDR, BUFSIZE, SERV_LISTEN
 import json
 from datetime import datetime
-from lesson_03.server.util_server_tools import save_user
+from lesson03.server.util_server_tools import save_user
 import logging
-import lesson_03.server.server_log_config
+import lesson03.server.server_log_config
 
 
 """
