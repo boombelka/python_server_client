@@ -11,6 +11,7 @@ import lesson03.client.client_log_config
 # не разобрался - убираешь - не работает
 
 
+
 logger = logging.getLogger('client')
 
 client_socket = socket(AF_INET, SOCK_STREAM)
@@ -20,8 +21,9 @@ time_create = datetime.datetime.today().strftime("%d/%m/%y %H:%M:%S")
 # при запуске клиента создается экземпляр
 # класса пользователя, где хранятся
 # необходимы реквизиты пользователя
-user = User(time_create)
-logger.debug(f'создан пользователь с именем {user.name}')
+user = User()
+print(user.name)
+logger.debug(f'создан пользователь с именем {user.name}.')
 while True:
     if user.name == "noname":
         user.autenticate()
@@ -38,8 +40,10 @@ while True:
         logger.debug(f'Создание соединения: получены данные {data}')
         data = json.loads(data, encoding="utf-8")
         logger.debug(f'данные переведены из json {data}')
+
         user_set_change = user.set_change(data)
-        logger.debug(f'Пользователь получил токен {user.token}')
+        logger.debug(f'Пользователь получил токен '
+                     f'{user.token} и имя {user.name}')
     else:
         user_action = str(input('введите любое слово'))
         if user_action == "authenticate":
@@ -49,13 +53,16 @@ while True:
             logger.debug(f'начат обмен сообщениями')
             string = user.action["msg"]
         else:
-            logger.debug(f'начат обмен сообщениями')
+            logger.debug(f'начат обмен сообщениями msg, клиент пишет {user_action}')
+            user.action["msg"]["message"] = user_action
+            logger.debug(f'подготовлена ветка для отправки {user.action["msg"]}')
             string = user.action["msg"]
+            logger.debug(f'строка для отправки на сервер {string}')
         data = json.dumps(string, ensure_ascii=False)
         client_socket.send(data.encode('utf-8'))
         data = client_socket.recv(BUFSIZE)
         data = json.loads(data.decode('utf-8'), encoding="utf-8")
-    input('Введите слово')
+
 del user
 client_socket.close()
 logger.debug('соединение закрыто')

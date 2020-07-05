@@ -35,16 +35,16 @@ class User:
 
     def parser(self, request):
         if request["action"] == "authenticate":
-            if request["status"] == "no_authenticate":
-                logger.debug(f'Для авторизации подготовлены данные {request["user"]}')
-                local_status = self.autenticate(f=request["user"])
-                if local_status == "200" or local_status == "201":
-                    self.status = "authenticate"
-                logger.debug(f'Проверка установили статус {local_status}')
-                server_answer_json = server_answer[f'{local_status}']
-                self.token = server_answer_json["token"]
-
-                return server_answer_json
+            logger.debug(f'Для авторизации подготовлены данные {request["user"]}')
+            local_status = self.autenticate(f=request["user"])
+            if local_status == "200" or local_status == "201":
+                self.status = "authenticate"
+            logger.debug(f'Проверка установили статус {local_status}')
+            server_answer_json = server_answer[f'{local_status}']
+            self.token = server_answer_json["token"]
+        else:
+            server_answer_json = server_answer["400"]
+        return server_answer_json
 
     def autenticate(self, f):
         user_attr = (f["account_name"], f["password"])
@@ -60,6 +60,19 @@ class User:
             return start_token
 
 
+def processing_client_request(client_data):
+    if client_data["action"] == "authenticate":
+        user = User()
+        logger.debug(f'создан пользователь {user.account_name}')
+        return user
+    elif client_data["action"] == "msg":
+        answer = server_answer["200"]
+        answer["alert"] = "Ваше сообщение принято"
+        return answer
+
+
+
+
 # определение необходимых параметров:
 # определение экземпляра логера.
 logger = logging.getLogger('server')
@@ -72,8 +85,7 @@ server_socket.bind(ADDR)
 # функции accept
 server_socket.listen(SERV_LISTEN)
 logger.debug(f'загружены параметры подключений к сокету - {ADDR}, {SERV_LISTEN}')
-user = User()
-logger.debug(f'создан пользователь {user.account_name}')
+
 
 while True:
     print('witing.....')
@@ -88,20 +100,28 @@ while True:
         # Сервер получает запрос с клиента и
         # декодирует его из битовогоформата в
         # строку json
+
         data = client_socket.recv(BUFSIZE).decode('utf-8')
+        logger.debug(f'Получены данные от клиента {data} и декодированы.')
         # Битовая срока преобразуется в словарь
-        client_data = json.loads(data, encoding="utf-8")
+        if data == "":
+            pass
+        else:
+            client_data = json.loads(data, encoding="utf-8")
+            if client_data["action"] == "authenticate":
+                user = processing_client_request(client_data)
+            processing_client_request(client_data)
         # client_data = json.loads(client_socket.recv(BUFSIZE).decode('utf-8'))
         # раскодированная строка отправляется
         # в функцию класса User на разбор
-        client_data = user.parser(request=client_data)
+        client_data = user.parser(client_data)
         # Полученная с разбора строка выгружается в строку
         # json для последующиего отправления через сокет
         logger.debug(f'Отправленные данные клиенту {client_data}')
         data = json.dumps(client_data, ensure_ascii=False).encode('utf-8')
         # отправка битовой строки ответа клиенту
         client_socket.send(data)
-        input("введите что нибудь")
+
 
     # закрытие сокета после отключения
     client_socket.close()

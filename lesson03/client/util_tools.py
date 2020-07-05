@@ -16,8 +16,9 @@ action = {
               },
 
     "msg": {"action": "msg",
-            "status": "False",
+            "message": "",
             "info": "простое сообщение пользователю или в чат",
+            "token": "token"
             },
     "quit": {"action": "quit",
              "status": "False",
@@ -25,7 +26,7 @@ action = {
              },
     "authenticate": {
         "action": "authenticate",
-        "time": datetime.datetime.today().strftime("%d/%m/%y %H:%M:%S"),
+        "time": "time",
         "user": {
                 "account_name": "noname",
                 "password": ""

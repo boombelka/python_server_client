@@ -3,8 +3,10 @@ import logging
 from datetime import datetime
 
 server_logger = logging.getLogger('server')
-server_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s ")
-fhs = logging.FileHandler(f"{datetime.now().date()}server.log", encoding='utf-8')
+server_formatter = logging.Formatter("%(asctime)s - "
+                                     "%(levelname)s - %(message)s ")
+fhs = logging.FileHandler(f"logs\\{datetime.now().date()}server.log",
+                          encoding='utf-8')
 fhs.setLevel(logging.DEBUG)
 fhs.setFormatter(server_formatter)
 server_logger.addHandler(fhs)

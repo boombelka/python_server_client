@@ -129,6 +129,11 @@ server_answer = {
         "response": 402,
         "alert": "Неверная пара логин/пароль",
         "token": "abd",
+    },
+    "400": {
+        "response": 400,
+        "alert": "Ваш запрос не принят к сведению",
+        "token": "abd",
     }
 }
 
