@@ -1,6 +1,4 @@
-"""
-Клиентская часть приложения.
-"""
+"""Клиентская часть приложения."""
 from lesson03.client.cliconf import ADDR, BUFSIZE
 from socket import AF_INET, SOCK_STREAM, socket
 import json
@@ -10,6 +8,46 @@ import logging
 import lesson03.client.client_log_config
 # не разобрался - убираешь - не работает
 
+
+# Декоратор логирования
+def log(logger):
+    def actual_decorator(fn):
+        def wrapper(*args, **kwargs):
+            fn_result = fn(*args, **kwargs)
+            logger.debug(f'Строка для преобразования'
+                         f'{fn_result}')
+            logger.debug(f'Создание соединения: {time_create}')
+            return fn_result
+        return wrapper
+    return actual_decorator
+
+
+@log(logger=logging.getLogger('client'))
+def json_dump_data(string):
+    logger.info(f'Преобразование строки данных для отправки на сервер.')
+    data = json.dumps(string, ensure_ascii=False).encode('utf-8')
+    return data
+
+
+@log(logger=logging.getLogger('client'))
+def json_load_data(b_data):
+    logger.info(f'Преобразование результата ответа сервереа')
+    data = json.loads(b_data, encoding="utf-8")
+    return data
+
+
+@log(logger=logging.getLogger('client'))
+def client_server_answer(BUFSIZE):
+    logger.info('Получение запроса клиента к серверу')
+    server_answer = client_socket.recv(BUFSIZE).decode('utf-8')
+    return server_answer
+
+
+@log(logger=logging.getLogger('client'))
+def client_server_send(data):
+    logger.info('Отправление ответа сервера к клиенту')
+    data = client_socket.send(data)
+    return data
 
 
 logger = logging.getLogger('client')
@@ -28,18 +66,14 @@ while True:
     if user.name == "noname":
         user.autenticate()
         string = user.action["authenticate"]
-        logger.debug(f'Создана строка для запроса авторизации на сервере: '
-                     f'{string}')
-        data = json.dumps(string, ensure_ascii=False)
-        logger.debug(f'Создание соединения: {time_create}')
-        data = data.encode('utf-8')
+        # Импорт запроса в JSON строку.
+        data = json_dump_data(string)
+
         client_socket.send(data)
-        logger.debug(f'Создание соединения: отправлены данные на сервер {data}')
-        data = client_socket.recv(BUFSIZE)
-        data = data.decode('utf-8')
-        logger.debug(f'Создание соединения: получены данные {data}')
-        data = json.loads(data, encoding="utf-8")
-        logger.debug(f'данные переведены из json {data}')
+
+        data = client_server_answer(BUFSIZE)
+
+        data = json_load_data(data)
 
         user_set_change = user.set_change(data)
         logger.debug(f'Пользователь получил токен '
@@ -58,10 +92,10 @@ while True:
             logger.debug(f'подготовлена ветка для отправки {user.action["msg"]}')
             string = user.action["msg"]
             logger.debug(f'строка для отправки на сервер {string}')
-        data = json.dumps(string, ensure_ascii=False)
-        client_socket.send(data.encode('utf-8'))
-        data = client_socket.recv(BUFSIZE)
-        data = json.loads(data.decode('utf-8'), encoding="utf-8")
+        data = json_dump_data(string)
+        client_server_send(data)
+        data = client_server_answer(BUFSIZE)
+        data = json_load_data(data)
 
 del user
 client_socket.close()
