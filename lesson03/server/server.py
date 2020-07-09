@@ -91,6 +91,7 @@ def log(logger):
             fn_result = fn(*args, **kwargs)
             logger.debug(f'Строка для преобразования'
                          f'{fn_result}')
+            logger.info(f'Отрабатывает функция {fn.__name__}')
             return fn_result
         return wrapper
     return actual_decorator

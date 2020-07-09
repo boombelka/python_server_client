@@ -17,6 +17,7 @@ def log(logger):
             logger.debug(f'Строка для преобразования'
                          f'{fn_result}')
             logger.debug(f'Создание соединения: {time_create}')
+            logger.info(f'Отрабатывает функция {fn.__name__}')
             return fn_result
         return wrapper
     return actual_decorator
