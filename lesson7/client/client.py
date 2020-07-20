@@ -67,23 +67,25 @@ with socket(AF_INET, SOCK_STREAM) as sock:  # Создать сокет TCP
 
     while True:
         if user.name == "noname":
+            # Первоначальная регистрация пользователя
             user.autenticate()
             string = user.action["authenticate"]
             # Импорт запроса в JSON строку.
             data = json_dump_data(string)
-
+            # Отправка запроса авторизации серверу.
             client_server_send(data)
-
+            # Получение ответа от сервера
             data = client_server_answer(BUFSIZE)
             logger.debug(f'Получен ответ от сервера,,, {data}')
-
+            # Преобразование ответа из json строки в словарь.
             data = json_load_data(data)
 
             user_set_change = user.set_change(data)
             logger.debug(f'Пользователь получил токен '
                          f'{user.token} и имя {user.name}')
+            print(data['alert'])
         else:
-            user_action = str(input('введите любое слово'))
+            user_action = str(input('Введите запрос'))
             if user_action == "authenticate":
                 logger.debug(f'будет проведена повторная "authenticate"')
                 string = user.action["authenticate"]
@@ -100,6 +102,7 @@ with socket(AF_INET, SOCK_STREAM) as sock:  # Создать сокет TCP
             client_server_send(data)
             data = client_server_answer(BUFSIZE)
             data = json_load_data(data)
+            print(data['alert'])
 
 
 

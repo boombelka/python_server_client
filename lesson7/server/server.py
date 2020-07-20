@@ -65,9 +65,9 @@ class User:
         :param f: строка словаря запросов клиента.
         :return: кортеж имя/пароль зарегистрированного пользователя.
         """
-        logger = logging.getLogger('server')
+        # logger = logging.getLogger('server')
         user_attr = (f["account_name"], f["password"])
-        logger.debug(f'атрибуты для регистрации {user_attr}')
+        # logger.debug(f'атрибуты для регистрации {user_attr}')
         server_answer = save_user(user_attr)
         print(f'После проверки статус {server_answer}')
         return server_answer
@@ -107,18 +107,20 @@ def processing_client_request(client_data):
     :param client_data:
     :return:
     """
-    logger = logging.getLogger('server')
+    # logger = logging.getLogger('server')
     if client_data["action"] == "authenticate":
         user = User()
-        logger.debug(f'создан пользователь {user.account_name}')
+        # logger.debug(f'создан пользователь {user.account_name}')
         return user
     elif client_data["action"] == "msg":
         answer = server_answer["200"]
         answer["alert"] = "Ваше сообщение принято"
         return answer
+    elif client_data['users']:
+        pass
 
 
-@log(logger = logging.getLogger('server'))
+@log(logger=logging.getLogger('server'))
 def client_server_answer(BUFSIZE):
     logger = logging.getLogger('server')
     logger.info('Получение данных клиента и декодирование их')
@@ -156,10 +158,14 @@ def read_requests(r_clients, all_clients):
                 print(f'Пришла строка {client_data}')
             elif client_data["action"] == "authenticate":
                 user = processing_client_request(client_data)
+            elif client_data['users']:
+                pass
+
             processing_client_request(client_data)
-                # client_data = json.loads(client_socket.recv(BUFSIZE).decode('utf-8'))
-                # раскодированная строка отправляется
-                # в функцию класса User на разбор запроса клиента
+            # client_data = json.loads(client_socket.recv(BUFSIZE).
+            # decode('utf-8'))
+            # раскодированная строка отправляется
+            # в функцию класса User на разбор запроса клиента
             client_data = user.parser(client_data)
             # Полученная с разбора строка выгружается в строку
             # json для последующиего отправления через сокет
@@ -169,11 +175,14 @@ def read_requests(r_clients, all_clients):
             responses[sock] = data
             logger.debug(f'Словарь {responses}')
         except:
-            print('Клиент {} {} отключился'.format(sock.fileno(), sock.getpeername()))
-            logger.debug(f'Клиент {sock.fileno()} - {sock.getpeername()}отключился')
+            print('Клиент {} {} отключился'.format(sock.fileno(),
+                                                   sock.getpeername()))
+            logger.debug(f'Клиент {sock.fileno()} - {sock.getpeername()}'
+                         f' отключился')
             all_clients.remove(sock)
 
 #    logger.debug(f'Функция responses закончила свою работу')
+    print(responses)
     return responses
 
 
@@ -222,6 +231,8 @@ def mainloop():
                 pass  # Ничего не делать, если какой-то клиент отключился
 
             responses = read_requests(r, clients)  # Сохраним запросы клиентов
+            print(responses)
+            print(clients)
  #          logger.debug(f'список подсоединеных клиентов {responses}')
             write_answer = write_responses(responses, w, clients)  # Выполним отправку ответов клиентам
  #           logger.debug(f'Закончена отправка сообщений клиентам {write_answer}')

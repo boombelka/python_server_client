@@ -1,16 +1,17 @@
+"""Unit-тесты сервера."""
+
+import sys
+import os
 import unittest
-from lesson03.server.server import User
+sys.path.append(os.path.join(os.getcwd(), '..'))
+from lesson7.server.server import processing_client_request
 
 
-def test_authorization_user():
-    user = User
-    client_data = {'action': 'authenticate', 'status': 'no_authenticate', 'time': '01/07/20 18:50:08', 'user': {'account_name': 'Жоржик', 'password': 'коржик'}}
-    assert user.parser(user=user, request=client_data) == {"response": 201, "alert": "Создана новая учетная запись"}
+class TestClass(unittest.TestCase):
+    """Класс с тестами."""
 
-
-def test_authorization_user():
-    user = User
-    client_data = {'action': 'authenticate', 'status': 'no_authenticate', 'time': '01/07/20 18:50:08', 'user': {'account_name': 'Жоржик', 'password': 'коржик'}}
-    assert user.parser(user=user, request=client_data) == {"response": 200, "alert": "Необязательное сообщение/уведомление"}
-
+    def test_authorization_user(self):
+        client_data = {'action': 'msg', 'status': 'authenticate', 'time': '01/07/20 18:50:08',
+                       'user': {'account_name': 'Жоржик', 'password': 'коржик'}}
+        self.assertEqual(processing_client_request(client_data) == {"response": 200, "alert": "Ваше сообщение принято"})
 
